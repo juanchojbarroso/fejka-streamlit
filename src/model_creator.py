@@ -1,4 +1,5 @@
 
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import time
 import numpy as np
 import streamlit as st
@@ -55,17 +56,29 @@ def train_model(pipeline, X_train, y_train, X_test, y_test):
 
     pipeline.fit(X_train, y_train)
 
-    train_accuracy = round(pipeline.score(X_train, y_train), 3)
-    train_f1 = round(
-        f1_score(y_train, pipeline.predict(X_train), average="weighted"), 3)
+    train_pipeline_predict = pipeline.predict(X_train)
+    test_pipeline_predict = pipeline.predict(X_test)
 
-    test_accuracy = round(pipeline.score(X_test, y_test), 3)
+    train_accuracy = round(accuracy_score(
+        y_train, train_pipeline_predict), 3)
+    train_precision = round(precision_score(
+        y_train, train_pipeline_predict, average="weighted"), 3)
+    train_recall = round(recall_score(
+        y_train, train_pipeline_predict, average="weighted"), 3)
+    train_f1 = round(
+        f1_score(y_train, train_pipeline_predict, average="weighted"), 3)
+
+    test_accuracy = round(accuracy_score(y_test, test_pipeline_predict), 3)
+    test_precision = round(precision_score(
+        y_test, test_pipeline_predict, average="weighted"), 3)
+    test_recall = round(recall_score(
+        y_test, test_pipeline_predict, average="weighted"), 3)
     test_f1 = round(
-        f1_score(y_test, pipeline.predict(X_test), average="weighted"), 3)
+        f1_score(y_test, test_pipeline_predict, average="weighted"), 3)
 
     duration = time.time() - start_time
 
-    return pipeline, train_accuracy, train_f1, test_accuracy, test_f1, duration
+    return pipeline, train_accuracy, train_precision, train_recall, train_f1, test_accuracy, test_precision, test_recall, test_f1, duration
 
 
 def create_model(X, y, model_type, model, test_size, random_state):
@@ -83,7 +96,7 @@ def create_model(X, y, model_type, model, test_size, random_state):
         ("model", model)
     ])
 
-    pipeline, train_accuracy, train_f1, test_accuracy, test_f1, duration = train_model(
+    pipeline, train_accuracy, train_precision, train_recall, train_f1, test_accuracy, test_precision, test_recall, test_f1, duration = train_model(
         model_pipeline, X_train, y_train, X_test, y_test)
 
     st.warning(f"Training took {duration:.3f} seconds")
@@ -93,6 +106,8 @@ def create_model(X, y, model_type, model, test_size, random_state):
     # Show train results
     col1.markdown("**Train Accuracy**: " +
                   str(train_accuracy))
+    col1.markdown("**Train Precision**: " + str(train_precision))
+    col1.markdown("**Train Recall**: " + str(train_recall))
     col1.markdown("**Tranin F1 Score**: " + str(train_f1))
 
     display = ConfusionMatrixDisplay.from_estimator(
@@ -109,6 +124,8 @@ def create_model(X, y, model_type, model, test_size, random_state):
 
     # Show test results
     col2.markdown("**Test Accuracy**: " + str(test_accuracy))
+    col2.markdown("**Test Precision**: " + str(test_precision))
+    col2.markdown("**Test Recall**: " + str(test_recall))
     col2.markdown("**Test F1 Score**: " + str(test_f1))
 
     display = ConfusionMatrixDisplay.from_estimator(
