@@ -33,6 +33,25 @@ from sklearn.metrics import accuracy_score, f1_score
 import numpy as np
 
 
+def get_preprocessor(num_features, cat_features):
+    numeric_transformer = Pipeline(
+        steps=[
+            ("impute", SimpleImputer(strategy="median")),
+            ("scaler", StandardScaler())
+        ]
+    )
+    categorical_tranformer = OneHotEncoder(handle_unknown="ignore")
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("num", numeric_transformer, num_features),
+            ("cat", categorical_tranformer, cat_features)
+        ]
+    )
+
+    return preprocessor
+
+
 def train_model(pipeline, x_train, y_train, x_test, y_test):
     t0 = time.time()
     pipeline.fit(x_train, y_train)
@@ -191,10 +210,12 @@ def views(link):
             X.columns = data.loc[:, data.columns != chosen_target].columns
             y = data[chosen_target]
 
-            random_state = st.slider('Random State', 1, 200)
+            default_value_random_state = 42
+            random_state = st.slider(
+                'Random State', min_value=1, max_value=200, value=default_value_random_state)
+            test_size = st.selectbox("Select test data size", (0.2, 0.3))
 
             st.dataframe(df.head(number_of_rows))
-
 
             if len(X) > 1:
                 model_type, model = model_selector()
@@ -203,28 +224,14 @@ def views(link):
                 if model_btn:
 
                     X_train, X_test, y_train, y_test = train_test_split(
-                        X, y, test_size=0.2, random_state=random_state)
+                        X, y, test_size=test_size, random_state=random_state)
 
                     st.dataframe(df.head(number_of_rows))
 
-                    numeric_features, categorical_features = get_columns_types(
+                    num_features, cat_features = get_columns_types(
                         X_train)
 
-                    numeric_transformer = Pipeline(
-                        steps=[
-                            ("impute", SimpleImputer(strategy="median")),
-                            ("scaler", StandardScaler())
-                        ]
-                    )
-
-                    categorical_tranformer = OneHotEncoder(handle_unknown="ignore")
-
-                    preprocessor = ColumnTransformer(
-                        transformers=[
-                            ("num", numeric_transformer, numeric_features),
-                            ("cat", categorical_tranformer, categorical_features)
-                        ]
-                    )
+                    preprocessor = get_preprocessor(num_features, cat_features)
 
                     pipeline = Pipeline(steps=[
                         ("preprocessor", preprocessor),
@@ -250,7 +257,8 @@ def views(link):
                     col1, col2 = st.beta_columns(2)
 
                     # Show train results
-                    col1.markdown("** train_accuracy **: " + str(train_accuracy))
+                    col1.markdown("** train_accuracy **: " +
+                                  str(train_accuracy))
                     col1.markdown("** train_f1 **: " + str(train_f1))
 
                     display = ConfusionMatrixDisplay.from_estimator(

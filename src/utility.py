@@ -21,7 +21,6 @@ def load_dataframe(uploaded_file, clean_data):
             print(e)      
 
     columns = list(df.columns)
-    columns.append(None)
 
     return df, columns
 
