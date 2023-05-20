@@ -257,9 +257,9 @@ def views(link):
                     col1, col2 = st.beta_columns(2)
 
                     # Show train results
-                    col1.markdown("** train_accuracy **: " +
+                    col1.markdown("**Train Accuracy**: " +
                                   str(train_accuracy))
-                    col1.markdown("** train_f1 **: " + str(train_f1))
+                    col1.markdown("**Tranin F1 Score**: " + str(train_f1))
 
                     display = ConfusionMatrixDisplay.from_estimator(
                         pipeline,
@@ -269,13 +269,13 @@ def views(link):
                         normalize=None,
                     )
                     display.ax_.set_title(
-                        "Matriz de confusión en " + model_type + " (train)")
+                        "Confusion Matrix for " + model_type + " (Train)")
                     st.set_option('deprecation.showPyplotGlobalUse', False)
                     col1.pyplot()
 
-                    # Show tests results
-                    col2.markdown("** test_accuracy **: " + str(test_accuracy))
-                    col2.markdown("** test_f1 **: " + str(test_f1))
+                    # Show test results
+                    col2.markdown("**Test Accuracy**: " + str(test_accuracy))
+                    col2.markdown("**Test F1 Score**: " + str(test_f1))
 
                     display = ConfusionMatrixDisplay.from_estimator(
                         pipeline,
@@ -285,6 +285,6 @@ def views(link):
                         normalize=None,
                     )
                     display.ax_.set_title(
-                        "Matriz de confusión en " + model_type + " (test)")
+                        "Confusion Matrix for " + model_type + " (Test)")
                     st.set_option('deprecation.showPyplotGlobalUse', False)
                     col2.pyplot()
