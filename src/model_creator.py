@@ -49,37 +49,8 @@ def get_columns_types(df):
 
     return numeric_features, categorical_features
 
-# def train_model(pipeline, x_train, y_train, x_test, y_test):
-#     t0 = time.time()
-#     pipeline.fit(x_train, y_train)
-#     duration = time.time() - t0
-#     y_train_pred = pipeline.predict(x_train)
-#     y_test_pred = pipeline.predict(x_test)
 
-#     train_accuracy = np.round(accuracy_score(y_train, y_train_pred), 3)
-#     train_f1 = np.round(f1_score(y_train, y_train_pred, average="weighted"), 3)
-
-#     test_accuracy = np.round(accuracy_score(y_test, y_test_pred), 3)
-#     test_f1 = np.round(f1_score(y_test, y_test_pred, average="weighted"), 3)
-
-#     return pipeline, train_accuracy, train_f1, test_accuracy, test_f1, duration
-
-
-def create_model(X, y, model_type, model, test_size, random_state):
-
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=random_state)
-
-    num_features, cat_features = get_columns_types(
-        X_train)
-
-    preprocessor = get_preprocessor(num_features, cat_features)
-
-    pipeline = Pipeline(steps=[
-        ("preprocessor", preprocessor),
-        ("model", model)
-    ])
-
+def train_model(pipeline, X_train, y_train, X_test, y_test):
     start_time = time.time()
 
     pipeline.fit(X_train, y_train)
@@ -93,6 +64,27 @@ def create_model(X, y, model_type, model, test_size, random_state):
         f1_score(y_test, pipeline.predict(X_test), average="weighted"), 3)
 
     duration = time.time() - start_time
+
+    return pipeline, train_accuracy, train_f1, test_accuracy, test_f1, duration
+
+
+def create_model(X, y, model_type, model, test_size, random_state):
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=random_state)
+
+    num_features, cat_features = get_columns_types(
+        X_train)
+
+    preprocessor = get_preprocessor(num_features, cat_features)
+
+    model_pipeline = Pipeline(steps=[
+        ("preprocessor", preprocessor),
+        ("model", model)
+    ])
+
+    pipeline, train_accuracy, train_f1, test_accuracy, test_f1, duration = train_model(
+        model_pipeline, X_train, y_train, X_test, y_test)
 
     st.warning(f"Training took {duration:.3f} seconds")
 
