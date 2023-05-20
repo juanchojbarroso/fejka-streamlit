@@ -44,25 +44,26 @@ def views(link):
             selected_columns = st.multiselect("Select features", columns)
             data = df[selected_columns]
             target_options = data.columns
-            chosen_target = st.selectbox("Select target", (target_options))
+            chosen_target = st.selectbox(
+                "Select target", (target_options.insert(0, '<select>')), 0)
+            if chosen_target != '<select>':
+                X = data.loc[:, data.columns != chosen_target]
+                X.columns = data.loc[:, data.columns != chosen_target].columns
+                y = data[chosen_target]
 
-            X = data.loc[:, data.columns != chosen_target]
-            X.columns = data.loc[:, data.columns != chosen_target].columns
-            y = data[chosen_target]
+                default_value_random_state = 42
+                random_state = st.slider(
+                    'Random State', min_value=1, max_value=200, value=default_value_random_state)
+                test_size = st.selectbox("Select test data size", (0.2, 0.3))
 
-            default_value_random_state = 42
-            random_state = st.slider(
-                'Random State', min_value=1, max_value=200, value=default_value_random_state)
-            test_size = st.selectbox("Select test data size", (0.2, 0.3))
+                st.dataframe(df.head(3))
 
-            st.dataframe(df.head(3))
+                if len(X) > 1:
+                    model_type, model = model_selector()
+                    model_btn = st.button('CREATE MODEL')
 
-            if len(X) > 1:
-                model_type, model = model_selector()
-                model_btn = st.button('CREATE MODEL')
-
-                if model_btn:
-                    create_model(X, y, model_type, model, test_size,
-                                 random_state)
+                    if model_btn:
+                        create_model(X, y, model_type, model, test_size,
+                                    random_state)
         else:
             st.subheader("Upload your data to create a model")
