@@ -6,6 +6,6 @@ st.set_page_config(
 )
 
 # navigation links
-link = st.sidebar.radio(label='Links', options=['Charts', 'Machine Learning'])
+link = st.sidebar.radio(label='Links', options=['Machine Learning', 'Charts'])
 views(link)
 
