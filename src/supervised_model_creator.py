@@ -11,7 +11,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn.metrics import ConfusionMatrixDisplay, roc_curve, roc_auc_score
 import matplotlib.pyplot as plt
 
 
@@ -78,7 +78,7 @@ def train_model(pipeline, X_train, y_train, X_test, y_test):
 
     duration = time.time() - start_time
 
-    return pipeline, train_accuracy, train_precision, train_recall, train_f1, test_accuracy, test_precision, test_recall, test_f1, duration
+    return pipeline, train_pipeline_predict, test_pipeline_predict, train_accuracy, train_precision, train_recall, train_f1, test_accuracy, test_precision, test_recall, test_f1, duration
 
 
 def create_model(X, y, model_type, model, test_size, random_state):
@@ -96,7 +96,7 @@ def create_model(X, y, model_type, model, test_size, random_state):
         ("model", model)
     ])
 
-    pipeline, train_accuracy, train_precision, train_recall, train_f1, test_accuracy, test_precision, test_recall, test_f1, duration = train_model(
+    pipeline, train_pipeline_predict, test_pipeline_predict, train_accuracy, train_precision, train_recall, train_f1, test_accuracy, test_precision, test_recall, test_f1, duration = train_model(
         model_pipeline, X_train, y_train, X_test, y_test)
 
     st.warning(f"Training took {duration:.3f} seconds")
